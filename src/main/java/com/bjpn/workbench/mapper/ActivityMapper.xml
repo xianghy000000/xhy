@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bjpn.workbench.mapper.ActivityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bjpn.workbench.bean.Activity">
+        <id column="activity_id" property="activityId" />
+        <result column="activity_owner" property="activityOwner" />
+        <result column="activity_name" property="activityName" />
+        <result column="activity_start_date" property="activityStartDate" />
+        <result column="activity_end_date" property="activityEndDate" />
+        <result column="activity_cost" property="activityCost" />
+        <result column="activity_description" property="activityDescription" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="edit_time" property="editTime" />
+        <result column="edit_by" property="editBy" />
+        <result column="user_name" property="userName" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        activity_id, activity_owner, activity_name, activity_start_date, activity_end_date, activity_cost, activity_description, create_time, create_by, edit_time, edit_by
+    </sql>
+    <select id="findAll" parameterType="com.bjpn.workbench.bean.Activity" resultMap="BaseResultMap">
+        select
+       a.activity_id, a.activity_owner, a.activity_name, a.activity_start_date,
+       a.activity_end_date, a.activity_cost, a.activity_description,
+       a.create_time, a.create_by, a.edit_time, a.edit_by,
+       u.user_name,u.user_id
+       from tbl_activity a
+       left join tbl_user u
+       on a.activity_owner = u.user_id
+       where
+       a.activity_name like '%' #{activityName} '%' and
+       u.user_name like '%' #{userName} '%' and
+       a.activity_start_date like '%' #{activityStartDate} '%' and
+       a.activity_end_date like '%' #{activityEndDate} '%'
+    </select>
+    <select id="exportActivityAll" parameterType="com.bjpn.workbench.bean.Activity" resultMap="BaseResultMap">
+        select
+        activity_id, activity_owner, activity_name, activity_start_date, activity_end_date, activity_cost, activity_description, create_time, create_by, edit_time, edit_by
+        from tbl_activity
+    </select>
+    <select id="exportActivityChecked"  resultMap="BaseResultMap">
+        select
+        activity_id, activity_owner, activity_name, activity_start_date, activity_end_date, activity_cost, activity_description, create_time, create_by, edit_time, edit_by
+        from tbl_activity
+        where
+        activity_id in
+        <foreach collection="list" item="activityId" open="(" close=")"
+                 separator=",">
+            #{activityId}
+        </foreach>
+    </select>
+    <insert id="importActivityByList" >
+        insert into tbl_activity (activity_owner, activity_name, activity_start_date, activity_end_date, activity_cost, activity_description, create_time, create_by, edit_time, edit_by)
+        values
+        <foreach collection="list" item="activity" separator=",">
+            (
+            #{activity.activityOwner},#{activity.activityName},#{activity.activityStartDate},#{activity.activityEndDate},#{activity.activityCost},#{activity.activityDescription},#{activity.createTime},#{activity.createBy},#{activity.editTime},#{activity.editBy}
+            )
+        </foreach>
+    </insert>
+    <select id="exportActivityAllById" parameterType="com.bjpn.workbench.bean.Activity" resultMap="BaseResultMap">
+      select
+      a.activity_id, a.activity_owner, a.activity_name, a.activity_start_date,
+      a.activity_end_date, a.activity_cost, a.activity_description,
+      a.create_time, a.create_by, a.edit_time, a.edit_by,
+      u.user_name,u.user_id
+      from tbl_activity a
+      left join tbl_user u
+      on a.activity_owner = u.user_id
+      where activity_id = #{activityId}
+    </select>
+    <update id="updateActivity" parameterType="com.bjpn.workbench.bean.Activity">
+        update tbl_activity a ,tbl_user u set
+        a.activity_id=#{}, a.activity_owner=#{}, a.activity_name=#{}, a.activity_start_date=#{},
+        a.activity_end_date=#{}, a.activity_cost=#{}, a.activity_description=#{},
+        a.create_time=#{}, a.create_by=#{}, a.edit_time=#{}, a.edit_by=#{},
+        u.user_name=#{}
+        where u.user_name=#{} and a.activity_id=#{}
+    </update>
+
+</mapper>
